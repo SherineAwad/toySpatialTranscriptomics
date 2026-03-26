@@ -1,4 +1,4 @@
-# Snakefile
+# Snakef vile
 
 configfile: "config.yaml"
 
@@ -8,17 +8,16 @@ rule all:
         config["OBJ"],
         config["FILTERED_OBJ"],
         config["ANALYSED_OBJ"],
-        f"figures/{config['PREFIX']}_umap.png",
-        f"figures/{config['PREFIX']}_spatial.png",
-        f"figures/{config['PREFIX']}_neighbors.png",
-        f"figures/{config['PREFIX']}_top_moranI.png",
+        expand("figures/{prefix}_spatial.png", prefix=config["PREFIX"]),
+        expand("figures/{prefix}_neighbors.png", prefix=config["PREFIX"]),
+        expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"])
 
 # Generate dummy data
 rule generate_dummy:
     output:
         config["OBJ"]
     shell:
-        "python dummy.py --output {output}"
+        "python src/dummy.py --output {output}"
 
 # Filter AnnData
 rule filter:
@@ -40,11 +39,18 @@ rule analyse:
     output:
         config["ANALYSED_OBJ"]
     shell:
-        "python analyse.py --input {input} --output {output} --prefix {config[PREFIX]}"
+        "python src/analyse.py --input {input} --output {output} --prefix {config[PREFIX]}"
+
 
 # Generate plots
 rule plot:
     input:
         config["ANALYSED_OBJ"]
+    output:
+        "figures/{prefix}_spatial.png",
+        "figures/{prefix}_neighbors.png",
+        "figures/{prefix}_top_moranI.png",
+    params:
+        markers=config["MAKER_GENES"]
     shell:
-        "python plots.py --input {input} --prefix {config[PREFIX]} --markers {config[MAKER_GENES]}"
+        "python src/plots.py --input {input} --prefix {wildcards.prefix} --markers {params.markers}"

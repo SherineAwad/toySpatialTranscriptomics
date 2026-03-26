@@ -3,6 +3,35 @@
 This repository contains a minimal set of scripts for a toy spatial transcriptomics workflow. The scripts are organized in the `src/` directory.
 
 
+## Create a dummy spatial scRNA dataset using `dummy.py` script 
+
+- **Number of cells (observations):** 10  
+- **Number of genes (variables):** 100  
+- **Data type:** raw counts (integers from 0 to 15)  
+
+## Cell Metadata (`adata.obs`)
+
+- **Cell IDs:** `Cell0`, `Cell1`, … `Cell9`  
+- No additional annotations  
+
+## Gene Metadata (`adata.var`)
+
+- **Gene IDs:** `Gene0`, `Gene1`, … `Gene99`  
+- No extra annotations  
+
+## Expression Matrix (`adata.X`)
+
+- Shape: `(10, 100)`  
+- Each row corresponds to a cell, each column to a gene  
+- Values: integer counts between 0 and 15  
+
+## Spatial Coordinates (`adata.obsm["spatial"]`)
+
+- Shape: `(10, 2)`  
+- Floating-point coordinates representing a 2D spatial layout  
+- Each row corresponds to a cell’s (x, y) location  
+
+
 ## Visualization: Filtering  QC
 
 To remove low-quality cells and features, we filtered out cells with too few detected genes and genes expressed in too few cells.  
@@ -96,4 +125,5 @@ Each gene has its own plot, showing where it is highly or lowly expressed in the
 ![Example Marker Gene](figures/toy_spatial_gene_Gene92.png)
 
 ![Example Marker Gene](figures/toy_spatial_gene_Gene77.png)
+
 

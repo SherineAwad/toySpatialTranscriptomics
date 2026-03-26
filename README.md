@@ -62,4 +62,38 @@ In this step, we process the filtered data to prepare it for downstream analysis
 
 
 
+### UMAP Plot
+
+A 2D representation of cells based on gene expression.  
+- Each dot is a cell, colored by its Leiden cluster.  
+- Cells close together have similar gene expression.  
+- This plot shows **expression similarity**, not tissue location.
+
+![UMAP Plot](figures/umaptoy_spatial_umap.png)
+
+
+
+### Top Spatially Variable Genes (Moran's I)
+
+This plot highlights the **genes with the strongest spatial patterns** in the tissue.  
+
+- **Moran's I** is a statistic that measures how gene expression is spatially autocorrelated — in other words, whether high or low expression tends to cluster together in space.  
+- The top 5 genes with the highest Moran's I values are selected.  
+- Cells are plotted in their tissue positions, colored by the expression of these top genes.  
+- Purpose: Quickly visualize genes whose expression shows **strong spatial organization**, which can reveal tissue structure or spatially distinct cell populations.  
+
+![Top Moran's I genes](figures/toy_spatial_top_moranI.png)
+
+
+
+
+### Marker Genes Spatial Plots
+
+Cells are plotted in their tissue positions and colored by the expression of selected marker genes.  
+Each gene has its own plot, showing where it is highly or lowly expressed in the tissue.  
+
+##### As an example we plot marker genes Gene92 and Gene77
+![Example Marker Gene](figures/toy_spatial_gene_Gene92.png)
+
+![Example Marker Gene](figures/toy_spatial_gene_Gene77.png)
 

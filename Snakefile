@@ -8,8 +8,6 @@ rule all:
         config["OBJ"],
         config["FILTERED_OBJ"],
         config["ANALYSED_OBJ"],
-        expand("figures/{prefix}_spatial.png", prefix=config["PREFIX"]),
-        expand("figures/{prefix}_neighbors.png", prefix=config["PREFIX"]),
         expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"])
 
 # Generate dummy data
@@ -47,8 +45,6 @@ rule plot:
     input:
         config["ANALYSED_OBJ"]
     output:
-        "figures/{prefix}_spatial.png",
-        "figures/{prefix}_neighbors.png",
         "figures/{prefix}_top_moranI.png",
     params:
         markers=config["MAKER_GENES"]

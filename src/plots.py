@@ -25,29 +25,6 @@ if "X_umap" in adata.obsm:
         save=f"{args.prefix}_umap.png"
     )
 
-# --- Leiden spatial scatter ---
-if "leiden" in adata.obs and "spatial" in adata.obsm:
-    sq.pl.spatial_scatter(
-        adata,
-        shape=None,
-        color="leiden",
-        size=500,
-        save=f"{args.prefix}_spatial.png"
-    )
-
-# --- Spatial neighbors (edges) ---
-if "spatial" in adata.obsm:
-    sq.gr.spatial_neighbors(adata, radius=3.0)
-    sq.pl.spatial_scatter(
-        adata,
-        color="leiden" if "leiden" in adata.obs else None,
-        connectivity_key="spatial_connectivities",
-        edges_color="black",
-        shape=None,
-        edges_width=1,
-        size=3000,
-        save=f"{args.prefix}_neighbors.png"
-    )
 
 # --- Moran's I for spatial autocorrelation ---
 try:

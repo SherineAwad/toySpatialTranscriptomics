@@ -1,0 +1,20 @@
+OBJ: toy_spatial.h5ad
+FILTERED_OBJ: filtered_toy.h5ad
+ANALYSED_OBJ: analysed_toy.h5ad
+
+#FILTERING PARAMS 
+#------------------
+MIN_GENES: 50 
+MIN_CELLS: 3
+
+#MT PREFIX
+#----------
+MT: MT
+
+#MARKER GENES
+#-------------
+MAKER_GENES: markers.txt
+
+
+#FIGURES
+PREFIX: toy_spatial

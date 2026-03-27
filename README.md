@@ -127,3 +127,19 @@ Each gene has its own plot, showing where it is highly or lowly expressed in the
 ![Example Marker Gene](figures/toy_spatial_gene_Gene77.png)
 
 
+### Now annotate 
+
+
+We annotating clusters where Leiden cluster labels are replaced with biological **cell type annotations**.
+
+![UMAP](figures/umapannotated_umap.png)
+
+Visualizes cells in a low-dimensional space based on gene expression similarity.  
+Cells that are close together have similar expression profiles.  
+Colored by **cell type (annotation)** instead of Leiden clusters to reflect biological interpretation.
+
+![Spatial UMAP](figures/annotated_spatial.png)
+
+Shows the physical (spatial) location of cells using their coordinates.  
+Colored by **cell type (annotation)** to reveal how different cell types are distributed across space.
+

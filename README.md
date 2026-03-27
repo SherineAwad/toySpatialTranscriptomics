@@ -143,3 +143,13 @@ Colored by **cell type (annotation)** instead of Leiden clusters to reflect biol
 Shows the physical (spatial) location of cells using their coordinates.  
 Colored by **cell type (annotation)** to reveal how different cell types are distributed across space.
 
+
+## References
+
+- **Scanpy** – single-cell analysis in Python:  
+  [Wolf et al., Genome Biology 2018](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1382-0)  
+  Python package: [https://scanpy.readthedocs.io](https://scanpy.readthedocs.io)
+
+- **Squidpy** – spatial single-cell analysis in Python:  
+  [Palla et al., Nature Methods 2022](https://www.nature.com/articles/s41592-021-01322-8)  
+  Python package: [https://squidpy.readthedocs.io](https://squidpy.readthedocs.io)

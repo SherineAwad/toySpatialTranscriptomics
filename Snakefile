@@ -8,7 +8,8 @@ rule all:
         config["OBJ"],
         config["FILTERED_OBJ"],
         config["ANALYSED_OBJ"],
-        expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"])
+        expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"]),
+	config["ANNOTATED_OBJ"],
 
 # Generate dummy data
 rule generate_dummy:
@@ -50,3 +51,22 @@ rule plot:
         markers=config["MAKER_GENES"]
     shell:
         "python src/plots.py --input {input} --prefix {wildcards.prefix} --markers {params.markers}"
+
+
+# Annotate AnnData
+rule annotate:
+    input:
+        config["ANALYSED_OBJ"]
+    output:
+        config["ANNOTATED_OBJ"]
+    params:
+        annot_file=config["ANNOT_FILE"]
+    shell:
+        """
+        python src/annotate.py \
+        --input {input} \
+        --output {output} \
+        --annotations {params.annot_file}
+        """
+
+

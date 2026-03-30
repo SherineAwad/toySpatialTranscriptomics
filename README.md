@@ -139,6 +139,14 @@ We annotating clusters where Leiden cluster labels are replaced with biological 
 ![](figures/annotated_spatial_tissue.png?v=3)
 
 
+
+### Now do some spatial differential gene expression among tissues 
+
+![](figures/heatmap_spatial_de_top_genes.png?v=2)
+
+[click here to download spatial differential expression per tissue](https://docs.google.com/spreadsheets/d/1bbQ8bhzVMQFlC0g2oqZDqaT-vmYQAskfTWwzseuPxNs/export?format=xlsx)
+
+
 ## References
 
 - **Scanpy** – single-cell analysis in Python:  

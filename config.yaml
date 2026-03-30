@@ -2,6 +2,8 @@ OBJ: toy.h5ad
 FILTERED_OBJ: filtered_toy.h5ad
 ANALYSED_OBJ: analysed_toy.h5ad
 ANNOTATED_OBJ: annotated_toy.h5ad 
+Tissue_DE_OBJ: spatial_DE_toy.h5ad
+
 #FILTERING PARAMS 
 #------------------
 MIN_GENES: 50 

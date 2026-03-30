@@ -10,7 +10,7 @@ rule all:
         config["ANALYSED_OBJ"],
         expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"]),
 	config["ANNOTATED_OBJ"],
-
+        config["Tissue_DE_OBJ"]
 
 # Generate dummy data
 rule generate_dummy:
@@ -71,3 +71,15 @@ rule annotate:
         """
 
 
+
+# Spatial differential Expression per tissue 
+
+rule spatial_DE:
+    input: 
+       config["ANNOTATED_OBJ"]
+    output: 
+       config["Tissue_DE_OBJ"] 
+    shell: 
+      """ 
+      python src/spatialDE.py --input {input} --output {output}  
+      """ 

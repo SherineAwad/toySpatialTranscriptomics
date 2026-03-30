@@ -11,6 +11,7 @@ rule all:
         expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"]),
 	config["ANNOTATED_OBJ"],
 
+
 # Generate dummy data
 rule generate_dummy:
     output:
@@ -26,7 +27,7 @@ rule filter:
         config["FILTERED_OBJ"]
     shell:
         """
-        python filter.py --input {input} --output {output} \
+        python src/filter.py --input {input} --output {output} \
         --prefix {config[PREFIX]} --min_genes {config[MIN_GENES]} \
         --min_cells {config[MIN_CELLS]} --mt {config[MT]}
         """

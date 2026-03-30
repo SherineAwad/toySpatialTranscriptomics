@@ -40,11 +40,11 @@ A QC violin plot was generated to visualize these metrics and check that the fil
 
 ### Before filter 
 
-![Pre-filter QC Violin Plot](figures/violintoy_spatialpre_filter.png)
+![Pre-filter QC Violin Plot](figures/violintoy_spatialpre_filter.png?v=2)
 
 ### Post filter 
 
-![Post-filter QC Violin Plot](figures/violintoy_spatialpost_filter.png)
+![Post-filter QC Violin Plot](figures/violintoy_spatialpost_filter.png?v=2)
 
 
 ## Analysis
@@ -76,7 +76,8 @@ In this step, we process the filtered data to prepare it for downstream analysis
    - Cells are colored by their **Leiden cluster**, making it easy to see which clusters occupy which regions.  
    - Helps identify spatial patterns or distinct domains of cell populations.
 
-![Leiden clusters](figures/toy_spatial_leiden.png)  
+![Leiden clusters](figures/toy_spatial_leiden.png?v=2)  
+
 
 
 ### Spatial scatter with edges
@@ -86,9 +87,7 @@ In this step, we process the filtered data to prepare it for downstream analysis
    - Cell colors still reflect Leiden clusters, while edges reveal how clusters interact spatially.  
    - Useful for examining spatial connectivity and potential interactions between cell groups.
 
-![Spatial neighbors](figures/toy_spatial_neighbors.png)
-
-
+![Spatial neighbors](figures/toy_spatial_neighbors.png?v=2)
 
 
 ### UMAP Plot
@@ -98,7 +97,7 @@ A 2D representation of cells based on gene expression.
 - Cells close together have similar gene expression.  
 - This plot shows **expression similarity**, not tissue location.
 
-![UMAP Plot](figures/umaptoy_spatial_umap.png)
+![UMAP Plot](figures/umaptoy_spatial_umap.png?v=2)
 
 
 
@@ -111,7 +110,7 @@ This plot highlights the **genes with the strongest spatial patterns** in the ti
 - Cells are plotted in their tissue positions, colored by the expression of these top genes.  
 - Purpose: Quickly visualize genes whose expression shows **strong spatial organization**, which can reveal tissue structure or spatially distinct cell populations.  
 
-![Top Moran's I genes](figures/toy_spatial_top_moranI.png)
+![Top Moran's I genes](figures/toy_spatial_top_moranI.png?v=2)
 
 
 
@@ -122,9 +121,9 @@ Cells are plotted in their tissue positions and colored by the expression of sel
 Each gene has its own plot, showing where it is highly or lowly expressed in the tissue.  
 
 ##### As an example we plot marker genes Gene92 and Gene77
-![Example Marker Gene](figures/toy_spatial_gene_Gene92.png)
+![Example Marker Gene](figures/toy_spatial_gene_Gene92.png?v=2)
 
-![Example Marker Gene](figures/toy_spatial_gene_Gene77.png)
+![Example Marker Gene](figures/toy_spatial_gene_Gene77.png?v=2)
 
 
 ### Now annotate 
@@ -132,16 +131,12 @@ Each gene has its own plot, showing where it is highly or lowly expressed in the
 
 We annotating clusters where Leiden cluster labels are replaced with biological **cell type annotations**.
 
-![UMAP](figures/umapannotated_umap.png)
 
-Visualizes cells in a low-dimensional space based on gene expression similarity.  
-Cells that are close together have similar expression profiles.  
-Colored by **cell type (annotation)** instead of Leiden clusters to reflect biological interpretation.
 
-![Spatial UMAP](figures/annotated_spatial.png)
-
-Shows the physical (spatial) location of cells using their coordinates.  
-Colored by **cell type (annotation)** to reveal how different cell types are distributed across space.
+![](figures/umapannotated_umap_celltype.png?v=2)
+![](figures/umapannotated_umap_tissue.png?v=2)
+![](figures/annotated_spatial_celltype.png?v=2)
+![](figures/annotated_spatial_tissue.png?v=2)
 
 
 ## References

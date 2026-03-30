@@ -1,4 +1,4 @@
-OBJ: toy_spatial.h5ad
+OBJ: toy.h5ad
 FILTERED_OBJ: filtered_toy.h5ad
 ANALYSED_OBJ: analysed_toy.h5ad
 ANNOTATED_OBJ: annotated_toy.h5ad 

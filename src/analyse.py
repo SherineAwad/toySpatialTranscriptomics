@@ -55,7 +55,7 @@ sq.pl.spatial_scatter(
     edges_color="black",
     shape=None,
     edges_width=1,
-    size=3000,
+    size=500,
     save=f"{args.prefix}_neighbors.png"
 )
 

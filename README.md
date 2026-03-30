@@ -144,7 +144,7 @@ We annotating clusters where Leiden cluster labels are replaced with biological 
 
 ![](figures/heatmap_spatial_de_top_genes.png?v=2)
 
-[click here to download spatial differential expression per tissue](https://docs.google.com/spreadsheets/d/1bbQ8bhzVMQFlC0g2oqZDqaT-vmYQAskfTWwzseuPxNs/export?format=xlsx)
+[Click here to view spatial differential expression per tissue](https://docs.google.com/spreadsheets/d/1bbQ8bhzVMQFlC0g2oqZDqaT-vmYQAskfTWwzseuPxNs/edit?usp=sharing)
 
 
 ## References

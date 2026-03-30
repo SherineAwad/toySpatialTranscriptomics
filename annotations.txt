@@ -1,0 +1,5 @@
+leiden,cell_type,tissue
+0,Fibroblast,Liver
+1,T Cells,Liver
+2,Macrophages,Kidney
+3,Mast Cells,Kidney

@@ -1,158 +1,63 @@
-# Toy Spatial Transcriptomics Pipeline
+# Spatial Transcriptomics Pipeline
 
-This repository contains a minimal set of scripts for a toy spatial transcriptomics workflow. The scripts are organized in the `src/` directory.
+## Data
+Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each spot contains spatial coordinates (x,y) and gene expression counts. The tissue section includes tumor regions, stroma, immune infiltrates, and vascular elements.
 
+## Results
 
-## Create a dummy spatial scRNA dataset using `dummy.py` script 
+![](figures/visium_BC_leiden.png?v=2)
 
-- **Number of cells (observations):** 10  
-- **Number of genes (variables):** 100  
-- **Data type:** raw counts (integers from 0 to 15)  
+**Leiden clustering** - Unsupervised clustering identifies distinct transcriptional regions across the tissue. Each color represents a cluster of spots with similar expression patterns, revealing heterogeneous tissue architecture and spatial compartments.
 
-## Cell Metadata (`adata.obs`)
+![](figures/figures/visium_BC_neighbors.png?v=2)
 
-- **Cell IDs:** `Cell0`, `Cell1`, … `Cell9`  
-- No additional annotations  
+**Spatial neighbor graph** - Connectivity network showing physically adjacent spots. This defines spatial relationships used for neighborhood analysis and autocorrelation statistics.
 
-## Gene Metadata (`adata.var`)
+![](figures/figures/visium_BC_umap_celltype.png?v=2)
 
-- **Gene IDs:** `Gene0`, `Gene1`, … `Gene99`  
-- No extra annotations  
+**UMAP of annotated cell types** - Dimensionality reduction showing how cell types cluster in expression space. Well-separated groups indicate successful marker-based annotation with distinct transcriptional identities.
 
-## Expression Matrix (`adata.X`)
+![](figures/figures/visium_BC_2_spatial_celltype.png?v=2)
 
-- Shape: `(10, 100)`  
-- Each row corresponds to a cell, each column to a gene  
-- Values: integer counts between 0 and 15  
+**Spatial cell type distribution** - Maps each annotated cell type to its physical location. Reveals tumor heterogeneity across regions, immune infiltration patterns at invasive margins, and stromal tissue organization.
 
-## Spatial Coordinates (`adata.obsm["spatial"]`)
+![](figures/visium_BC_spatial_celltype.png?v=2)
 
-- Shape: `(10, 2)`  
-- Floating-point coordinates representing a 2D spatial layout  
-- Each row corresponds to a cell’s (x, y) location  
+**Spatial cell types (alternate view)** - Same annotations with different visualization parameters, confirming spatial patterns are robust.
 
+![](figures/visium_BC_3_spatial_graph.png?v=2)
 
-## Visualization: Filtering  QC
+**Spatial graph with cell types** - Neighbor network overlaid with cell type annotations, showing connectivity patterns between different cell populations.
 
-To remove low-quality cells and features, we filtered out cells with too few detected genes and genes expressed in too few cells.  
-A QC violin plot was generated to visualize these metrics and check that the filtering worked as expected.
+![](figures/visium_BC_5_gene_3_SERF2.png?v=2)
 
+**SERF2 spatial expression** - Distribution of SERF2 gene expression across the tissue. Highlights regions where this gene is active.
 
-### Before filter 
+![](figures/visium_BC_umap_celltype.png?v=2)
 
-![Pre-filter QC Violin Plot](figures/violintoy_spatialpre_filter.png?v=3)
+**UMAP cell types (reference)** - Reference UMAP showing the relationship between all annotated cell types.
 
-### Post filter 
+![](figures/visium_BC_5_gene_1_RPL41.png?v=2)
 
-![Post-filter QC Violin Plot](figures/violintoy_spatialpost_filter.png?v=3)
+**RPL41 spatial expression** - Ribosomal protein RPL41 expression pattern. High expression marks regions of active protein synthesis and metabolic activity.
 
+![](figures/visium_BC_5_gene_4_RPL13A.png?v=2)
 
-## Analysis
+**RPL13A spatial expression** - Ribosomal protein RPL13A distribution. Shows spatial heterogeneity in ribosomal gene expression across the tissue.
 
-In this step, we process the filtered data to prepare it for downstream analysis:
+![](figures/visium_BC_5_gene_2_RPS27.png?v=2)
 
+**RPS27 spatial expression** - Ribosomal protein RPS27 pattern. Co-localizes with other ribosomal genes indicating regional metabolic activity.
 
-1. **Standard preprocessing**:  
-   - The total counts for each cell are normalized to make cells comparable.  
-   - Logarithmic transformation (`log1p`) is applied to stabilize variance across genes.  
+![](figures/visium_BC_4_nhood_enrichment.png?v=2)
 
-2. **Highly Variable Genes (HVGs)**:  
-   - We identify the top 2000 most variable genes using the Seurat method.  
-   - Optionally, the dataset can be subsetted to include only these highly variable genes for downstream analysis.  
+**Neighborhood enrichment heatmap** - Cell type pair co-occurrence analysis. Red (positive values) indicates pairs found together more often than expected by chance, suggesting spatial attraction and potential functional interactions. Blue (negative values) indicates spatial exclusion or mutual avoidance.
 
-3.. **Scaling**: Each gene is scaled to zero mean and unit variance, ensuring that highly expressed genes do not dominate the analysis.  
+![](figures/visium_BC_1_celltype_composition.png?v=2)
 
-4. **Dimensionality reduction and clustering**:  
-   - **PCA** reduces the data to key components capturing most of the variation.  
-   - **Neighbors graph** is computed to identify similar cells.  
-   - **UMAP** projects cells into 2D for visualization.  
-   - **Leiden clustering** groups cells into clusters based on similarity.  
-
-
-
-### Spatial scatter plot
-
-   - Shows the location of each cell in the tissue.  
-   - Cells are colored by their **Leiden cluster**, making it easy to see which clusters occupy which regions.  
-   - Helps identify spatial patterns or distinct domains of cell populations.
-
-![Leiden clusters](figures/toy_spatial_leiden.png?v=3)  
-
-
-
-### Spatial scatter with edges
-
-   - Computes spatial neighbors for each cell based on a defined radius.  
-   - Plots cells with **edges connecting neighboring cells** to show local spatial relationships.  
-   - Cell colors still reflect Leiden clusters, while edges reveal how clusters interact spatially.  
-   - Useful for examining spatial connectivity and potential interactions between cell groups.
-
-![Spatial neighbors](figures/toy_spatial_neighbors.png?v=3)
-
-
-### UMAP Plot
-
-A 2D representation of cells based on gene expression.  
-- Each dot is a cell, colored by its Leiden cluster.  
-- Cells close together have similar gene expression.  
-- This plot shows **expression similarity**, not tissue location.
-
-![UMAP Plot](figures/umaptoy_spatial_umap.png?v=3)
-
-
-
-### Top Spatially Variable Genes (Moran's I)
-
-This plot highlights the **genes with the strongest spatial patterns** in the tissue.  
-
-- **Moran's I** is a statistic that measures how gene expression is spatially autocorrelated — in other words, whether high or low expression tends to cluster together in space.  
-- The top 5 genes with the highest Moran's I values are selected.  
-- Cells are plotted in their tissue positions, colored by the expression of these top genes.  
-- Purpose: Quickly visualize genes whose expression shows **strong spatial organization**, which can reveal tissue structure or spatially distinct cell populations.  
-
-![Top Moran's I genes](figures/toy_spatial_top_moranI.png?v=3)
-
-
-
-
-### Marker Genes Spatial Plots
-
-Cells are plotted in their tissue positions and colored by the expression of selected marker genes.  
-Each gene has its own plot, showing where it is highly or lowly expressed in the tissue.  
-
-##### As an example we plot marker genes Gene92 and Gene77
-![Example Marker Gene](figures/toy_spatial_gene_Gene92.png?v=3)
-
-![Example Marker Gene](figures/toy_spatial_gene_Gene77.png?v=3)
-
-
-### Now annotate 
-
-
-We annotating clusters where Leiden cluster labels are replaced with biological **cell type annotations**.
-
-
-
-![](figures/umapannotated_umap_celltype.png?v=3)
-![](figures/umapannotated_umap_tissue.png?v=3)
-![](figures/annotated_spatial_celltype.png?v=3)
-![](figures/annotated_spatial_tissue.png?v=3)
-
-
-
-### Now do some spatial differential gene expression among tissues 
-
-![](figures/heatmap_spatial_de_top_genes.png?v=2)
-
-[Click here to view spatial differential expression per tissue](https://docs.google.com/spreadsheets/d/1bbQ8bhzVMQFlC0g2oqZDqaT-vmYQAskfTWwzseuPxNs/edit?usp=sharing)
-
+**Cell type composition** - Bar plot quantifying frequency of each annotated cell type across all spatial spots. Reveals dominant populations (tumor, immune, stromal) and rare cell types in the breast cancer microenvironment.
 
 ## References
 
-- **Scanpy** – single-cell analysis in Python:  
-  [Wolf et al., Genome Biology 2018](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1382-0)  
-  Python package: [https://scanpy.readthedocs.io](https://scanpy.readthedocs.io)
-
-- **Squidpy** – spatial single-cell analysis in Python:  
-  [Palla et al., Nature Methods 2022](https://www.nature.com/articles/s41592-021-01322-8)  
-  Python package: [https://squidpy.readthedocs.io](https://squidpy.readthedocs.io)
+- **Scanpy** – single-cell analysis in Python: [Wolf et al., Genome Biology 2018](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1382-0)
+- **Squidpy** – spatial single-cell analysis in Python: [Palla et al., Nature Methods 2022](https://www.nature.com/articles/s41592-021-01322-8)

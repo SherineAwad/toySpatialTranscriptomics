@@ -16,14 +16,19 @@ args = parser.parse_args()
 adata = sc.read(args.input)
 print(adata)
 
+# FIX GENE NAMES
+if adata.var_names.dtype in ['int64', 'int32']:
+    if 'gene_symbols' in adata.var.columns:
+        adata.var_names = adata.var['gene_symbols'].values
+    else:
+        adata.var_names = [f"gene_{i}" for i in range(adata.n_vars)]
+
 # --- Standard preprocessing ---
 sc.pp.normalize_total(adata)
 sc.pp.log1p(adata)
 
 # --- Highly Variable Genes ---
 sc.pp.highly_variable_genes(adata, flavor="seurat", n_top_genes=2000)
-# Optionally subset to HVGs only
-adata = adata[:, adata.var.highly_variable]
 
 # --- Scale the data ---
 sc.pp.scale(adata)
@@ -36,28 +41,31 @@ sc.tl.leiden(adata)
 print(adata)
 
 # --- Spatial scatter plot ---
+fig, ax = plt.subplots(figsize=(8, 8))
 sq.pl.spatial_scatter(
     adata,
     shape=None,
     color="leiden",
     size=50,
-    save=f"{args.prefix}_leiden.png"
+    ax=ax
 )
+plt.savefig(f"figures/{args.prefix}_leiden.png")
+plt.close()
 
 # --- Compute spatial neighbors ---
 sq.gr.spatial_neighbors(adata, radius=3.0)
 
 # --- Spatial scatter with edges ---
+fig, ax = plt.subplots(figsize=(8, 8))
 sq.pl.spatial_scatter(
     adata,
     color="leiden",
     connectivity_key="spatial_connectivities",
-    edges_color="black",
-    shape=None,
-    edges_width=1,
-    size=500,
-    save=f"{args.prefix}_neighbors.png"
+    size=50,
+    ax=ax
 )
+plt.savefig(f"figures/{args.prefix}_neighbors.png")
+plt.close()
 
 # Save processed AnnData
 adata.write(args.output)

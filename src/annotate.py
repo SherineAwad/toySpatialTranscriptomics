@@ -2,107 +2,124 @@
 
 import argparse
 import scanpy as sc
-import squidpy as sq
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
 
 # -------------------------
-# Arguments
+# Args
 # -------------------------
-parser = argparse.ArgumentParser(description="Annotate AnnData and plot using cell types/tissue")
-parser.add_argument("--input", type=str, required=True, help="Input AnnData (.h5ad)")
-parser.add_argument("--output", type=str, required=True, help="Output annotated AnnData (.h5ad)")
-parser.add_argument("--annotations", type=str, required=True, help="Annotation file (leiden, cell_type, tissue)")
-parser.add_argument("--prefix", type=str, default="annotated", help="Prefix for plots")
+parser = argparse.ArgumentParser(description="Marker-based cell type annotation")
+parser.add_argument("--input", required=True, help="Input AnnData (.h5ad)")
+parser.add_argument("--output", required=True, help="Output AnnData (.h5ad)")
+parser.add_argument("--markers", required=True, help="CSV: cell_type,markers")
+parser.add_argument("--prefix", default="annotated", help="Output prefix for plots/files")
+parser.add_argument("--min_genes", type=int, default=2)
+parser.add_argument("--unknown_thresh", type=float, default=0.1)
 args = parser.parse_args()
 
 # -------------------------
-# Load AnnData
+# Load data
 # -------------------------
 adata = sc.read(args.input)
 print(adata)
 
-# -------------------------
-# Load annotations
-# -------------------------
-try:
-    ann = pd.read_csv(args.annotations, sep=None, engine="python")
-    if not {"leiden", "cell_type"}.issubset(ann.columns):
-        raise ValueError("Annotation file must contain columns: leiden, cell_type (tissue optional)")
-except Exception as e:
-    raise RuntimeError(f"Failed to read annotations file: {e}")
+# Fix: Make variable names unique and ensure strings
+adata.var_names_make_unique()
+adata.var_names = adata.var_names.astype(str)
 
 # -------------------------
-# Apply annotations
+# Load markers
 # -------------------------
-adata.obs["leiden"] = adata.obs["leiden"].astype(str)
-ann["leiden"] = ann["leiden"].astype(str)
+marker_df = pd.read_csv(args.markers)
 
-# --- Map cell_type ---
-mapping_cell_type = dict(zip(ann["leiden"], ann["cell_type"]))
-adata.obs["cell_type"] = adata.obs["leiden"].map(mapping_cell_type)
+if "cell_type" not in marker_df.columns or "markers" not in marker_df.columns:
+    raise ValueError("Marker file must contain: cell_type, markers")
 
-# --- Map tissue if present ---
-if "tissue" in ann.columns:
-    mapping_tissue = dict(zip(ann["leiden"], ann["tissue"]))
-    adata.obs["tissue"] = adata.obs["leiden"].map(mapping_tissue)
-    print("Tissue annotation applied")
-else:
-    print("No tissue column in annotation CSV → skipping tissue annotation")
+marker_dict = {
+    row["cell_type"]: [g.strip() for g in row["markers"].split(";")]
+    for _, row in marker_df.iterrows()
+}
 
-# --- Report missing clusters ---
-missing_cell_type = sorted(set(adata.obs["leiden"]) - set(mapping_cell_type.keys()))
-if missing_cell_type:
-    print(f"Warning: clusters {missing_cell_type} have no cell_type annotation (set to NaN)")
-
-if "tissue" in ann.columns:
-    missing_tissue = sorted(set(adata.obs["leiden"]) - set(mapping_tissue.keys()))
-    if missing_tissue:
-        print(f"Warning: clusters {missing_tissue} have no tissue annotation (set to NaN)")
+print(f"Loaded {len(marker_dict)} cell types")
 
 # -------------------------
-# Save annotated AnnData
+# Score genes
+# -------------------------
+score_df = pd.DataFrame(index=adata.obs_names)
+
+for cell_type, genes in marker_dict.items():
+    # Filter to genes that exist in adata
+    genes = [g for g in genes if g in adata.var_names]
+
+    if len(genes) < args.min_genes:
+        print(f"Skipping {cell_type}: only {len(genes)} genes found")
+        continue
+
+    sc.tl.score_genes(
+        adata,
+        gene_list=genes,
+        score_name=f"score_{cell_type}"
+    )
+
+    score_df[cell_type] = adata.obs[f"score_{cell_type}"].values
+
+# -------------------------
+# Normalize scores
+# -------------------------
+score_df = (score_df - score_df.mean()) / (score_df.std() + 1e-9)
+
+# -------------------------
+# Assign labels
+# -------------------------
+adata.obs["cell_type"] = score_df.idxmax(axis=1)
+adata.obs["cell_type_score"] = score_df.max(axis=1)
+
+adata.obs.loc[
+    adata.obs["cell_type_score"] < args.unknown_thresh,
+    "cell_type"
+] = "Unknown"
+
+# -------------------------
+# Save AnnData
 # -------------------------
 adata.write(args.output)
-print(f"Annotated AnnData saved to {args.output}")
+print(f"Saved AnnData → {args.output}")
 
 # -------------------------
-# Plots
+# PLOTS - saved to figures/
 # -------------------------
 
 # UMAP
 if "X_umap" in adata.obsm:
-    if "cell_type" in adata.obs:
-        sc.pl.umap(
-            adata,
-            color="cell_type",
-            size=50,
-            save=f"{args.prefix}_umap_celltype.png"
-        )
-    if "tissue" in adata.obs:
-        sc.pl.umap(
-            adata,
-            color="tissue",
-            size=50,
-            save=f"{args.prefix}_umap_tissue.png"
-        )
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sc.pl.umap(
+        adata,
+        color="cell_type",
+        size=40,
+        ax=ax,
+        show=False
+    )
+    plt.tight_layout()
+    plt.savefig(f"figures/{args.prefix}_umap_celltype.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print("✓ UMAP plot saved to figures/")
 
-# Spatial scatter
+# Spatial
 if "spatial" in adata.obsm:
-    if "cell_type" in adata.obs:
-        sq.pl.spatial_scatter(
-            adata,
-            color="cell_type",
-            shape=None,
-            size=50,
-            save=f"{args.prefix}_spatial_celltype.png"
-        )
-    if "tissue" in adata.obs:
-        sq.pl.spatial_scatter(
-            adata,
-            color="tissue",
-            shape=None,
-            size=50,
-            save=f"{args.prefix}_spatial_tissue.png"
-        )
+    import squidpy as sq
+    fig, ax = plt.subplots(figsize=(10, 10))
+    sq.pl.spatial_scatter(
+        adata,
+        color="cell_type",
+        size=40,
+        shape=None,
+        ax=ax
+    )
+    plt.tight_layout()
+    plt.savefig(f"figures/{args.prefix}_spatial_celltype.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print("✓ Spatial plot saved to figures/")
 
-print("Annotation plots completed for cell_type and tissue")
+print("DONE ✔")

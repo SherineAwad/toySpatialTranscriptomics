@@ -1,77 +1,135 @@
+#!/usr/bin/env python
+
+import argparse
 import scanpy as sc
 import squidpy as sq
-import argparse
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
-# Arguments
-parser = argparse.ArgumentParser(description="Plot preprocessed AnnData with optional marker genes")
-parser.add_argument("--input", type=str, required=True, help="Path to input AnnData (.h5ad)")
-parser.add_argument("--prefix", type=str, default="spatial_", help="Prefix for output plots")
-parser.add_argument("--markers", type=str, default="markers.txt", help="Path to marker genes file (one gene per line)")
+# -------------------------
+# Args
+# -------------------------
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", required=True)
+parser.add_argument("--prefix", default="fig")
 args = parser.parse_args()
 
-# Load AnnData
+prefix = args.prefix
+
+# -------------------------
+# Load data
+# -------------------------
 adata = sc.read(args.input)
-print(adata)
 
-# --- UMAP plot ---
-if "X_umap" in adata.obsm:
-    sc.pl.umap(
+if "cell_type" not in adata.obs:
+    raise ValueError("cell_type missing")
+
+# Ensure spatial coordinates exist
+if "spatial" not in adata.obsm:
+    if "X_spatial" in adata.obsm:
+        adata.obsm["spatial"] = adata.obsm["X_spatial"]
+    else:
+        raise ValueError("No spatial coordinates found")
+
+# =========================================================
+# 1. Composition
+# =========================================================
+plt.figure(figsize=(10, 6))
+adata.obs["cell_type"].value_counts().plot(kind="bar")
+plt.title("Cell Type Composition")
+plt.tight_layout()
+plt.savefig(f"figures/{prefix}_1_celltype_composition.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("✓ Figure 1 saved")
+
+# =========================================================
+# 2. Spatial plot
+# =========================================================
+fig, ax = plt.subplots(figsize=(10, 10))
+sc.pl.embedding(adata, basis="spatial", color="cell_type", size=30, ax=ax, show=False)
+plt.title("Spatial Cell Types")
+plt.tight_layout()
+plt.savefig(f"figures/{prefix}_2_spatial_celltype.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("✓ Figure 2 saved")
+
+# =========================================================
+# 3. Spatial graph
+# =========================================================
+if "spatial_connectivities" not in adata.obsp:
+    sq.gr.spatial_neighbors(adata, coord_type="generic", n_neighbors=6)
+
+fig, ax = plt.subplots(figsize=(10, 10))
+sc.pl.embedding(adata, basis="spatial", color="cell_type", size=30, ax=ax, show=False)
+
+if "spatial_connectivities" in adata.obsp:
+    from scipy.sparse import find
+    coords = adata.obsm["spatial"]
+    edges = find(adata.obsp["spatial_connectivities"])
+    step = max(1, len(edges[0]) // 2000)
+    for idx in range(0, len(edges[0]), step):
+        i, j = edges[0][idx], edges[1][idx]
+        if i < j:
+            ax.plot([coords[i,0], coords[j,0]], [coords[i,1], coords[j,1]], 
+                   'gray', alpha=0.2, linewidth=0.3)
+
+plt.title("Spatial Graph")
+plt.tight_layout()
+plt.savefig(f"figures/{prefix}_3_spatial_graph.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("✓ Figure 3 saved")
+
+# =========================================================
+# 4. Neighborhood enrichment
+# =========================================================
+sq.gr.nhood_enrichment(adata, cluster_key="cell_type")
+
+fig, ax = plt.subplots(figsize=(12, 10))
+sq.pl.nhood_enrichment(adata, cluster_key="cell_type", cmap="viridis", ax=ax)
+plt.title("Neighborhood Enrichment")
+plt.tight_layout()
+plt.savefig(f"figures/{prefix}_4_nhood_enrichment.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("✓ Figure 4 saved")
+
+# =========================================================
+# 5. MULTIPLE GENES (NO MORAN I DEPENDENCY)
+# =========================================================
+# Calculate variance to get top genes
+if adata.X is not None:
+    if hasattr(adata.X, "toarray"):
+        variances = np.var(adata.X.toarray(), axis=0)
+    else:
+        variances = np.var(adata.X, axis=0)
+    adata.var["variance"] = variances
+
+# Get top 4 genes by variance
+n_genes = min(4, adata.n_vars)
+top_genes = adata.var.nlargest(n_genes, "variance").index.tolist()
+
+print(f"Plotting top {len(top_genes)} variable genes: {top_genes}")
+
+# Plot each gene as a separate figure
+for i, gene in enumerate(top_genes, 1):
+    fig, ax = plt.subplots(figsize=(10, 10))
+    sc.pl.embedding(
         adata,
-        color="leiden" if "leiden" in adata.obs else None,
-        size=500,  # smaller dot size
-        save=f"{args.prefix}_umap.png"
+        basis="spatial",
+        color=gene,
+        size=30,
+        cmap="magma",
+        ax=ax,
+        show=False,
+        colorbar_loc="right"
     )
+    plt.title(f"Gene: {gene} (Top {i} by variance)")
+    plt.tight_layout()
+    plt.savefig(f"figures/{prefix}_5_gene_{i}_{gene}.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {gene}")
 
-
-# --- Moran's I for spatial autocorrelation ---
-try:
-    sq.gr.spatial_autocorr(adata, mode="moran")
-    # Safe way to get Moran's I values
-    if "moranI" in adata.var.columns:
-        moran_series = adata.var['moranI']
-    elif "moranI" in adata.uns:
-        moran_series = pd.Series(adata.uns["moranI"]["I"], index=adata.uns["moranI"].index)
-    else:
-        moran_series = None
-
-    if moran_series is not None and not moran_series.empty:
-        # Top 5 genes for quick overview
-        top_genes = list(moran_series.sort_values(ascending=False).head(5).index)
-        print("Top Moran's I genes:", top_genes)
-        sq.pl.spatial_scatter(
-            adata,
-            color=top_genes,
-            shape=None,
-            size=50,
-            save=f"{args.prefix}_top_moranI.png"
-        )
-
-        # Gene-by-gene plots for marker genes
-        try:
-            markers = []
-            with open(args.markers, "r") as f:
-                markers = [line.strip() for line in f if line.strip() in adata.var_names]
-            if markers:
-                for g in markers:
-                    sq.pl.spatial_scatter(
-                        adata,
-                        color=g,
-                        shape=None,
-                        size=50,
-                        save=f"{args.prefix}_gene_{g}.png"
-                    )
-            else:
-                print("No markers found in AnnData.var_names; skipping marker plots.")
-        except FileNotFoundError:
-            print(f"Markers file {args.markers} not found; skipping gene-by-gene plots.")
-
-    else:
-        print("Moran's I not available; skipping top genes and marker plots.")
-
-except Exception as e:
-    print("Spatial autocorrelation (Moran's I) could not be computed:", e)
-
-print("All plots saved with prefix:", args.prefix)
+print("\n" + "="*50)
+print(f"✓ ALL FIGURES SAVED to figures/")
+print(f"  - Figure 5 produced {n_genes} gene expression plots")
+print("="*50)

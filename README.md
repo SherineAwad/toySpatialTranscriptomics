@@ -57,6 +57,27 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 
 **Cell type composition** - Bar plot quantifying frequency of each annotated cell type across all spatial spots. Reveals dominant populations (tumor, immune, stromal) and rare cell types in the breast cancer microenvironment.
 
+
+## Spatially Variable Genes (SVG)
+
+Spatially variable genes are genes whose expression levels are not randomly distributed across the tissue but instead show organized spatial patterns. These genes often mark functional regions, tissue compartments, or disease niches.
+
+**Moran's I** measures spatial autocorrelation - whether nearby spots have similar expression values. Values range from -1 to +1, where positive values indicate clustered expression patterns and negative values indicate dispersed patterns.
+
+- **High Moran's I (>0.5)** : Gene is confined to specific spatial regions (e.g., tumor core marker, stromal signature)
+- **Moderate Moran's I (0.2-0.5)** : Gene shows gradual spatial gradient across the tissue
+- **Low Moran's I (<0.2)** : Gene is randomly distributed or ubiquitously expressed
+
+Top spatially variable genes represent the most organized transcriptional patterns in your tissue section, revealing spatial functional domains that may not be captured by clustering alone, top 6 genes are listed below: 
+
+![](figures/visium_BC_gene_3_SERF2.png?v=2)
+![](figures/visium_BC_gene_5_RPLP2.png?v=2)
+![](figures/visium_BC_gene_6_RPS28.png?v=2)
+![](figures/visium_BC_gene_1_RPL41.png?v=2)
+![](figures/visium_BC_gene_4_RPL13A.png?v=2)
+![](figures/visium_BC_gene_2_RPS27.png?v=2)
+
+
 ## References
 
 - **Scanpy** – single-cell analysis in Python: [Wolf et al., Genome Biology 2018](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-017-1382-0)

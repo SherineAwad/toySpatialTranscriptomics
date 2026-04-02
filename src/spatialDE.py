@@ -1,97 +1,55 @@
 #!/usr/bin/env python
 
+import argparse
 import scanpy as sc
 import squidpy as sq
-import argparse
-import os
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
-# -------------------------
-# Arguments
-# -------------------------
-parser = argparse.ArgumentParser(description="Spatial differential expression by tissue")
-parser.add_argument("--input", type=str, required=True, help="Preprocessed AnnData (.h5ad)")
-parser.add_argument("--output", type=str, required=True, help="Output file for DE results (.csv) and AnnData (.h5ad)")
-parser.add_argument("--prefix", type=str, default="spatial_de", help="Prefix for heatmap plot")
-parser.add_argument("--top", type=int, default=5, help="Top N genes per tissue to include in heatmap")
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", required=True)
+parser.add_argument("--output", required=True)
+parser.add_argument("--prefix", default="spatial")
+parser.add_argument("--topN", type=int, default=6)
 args = parser.parse_args()
 
-# -------------------------
-# Load AnnData
-# -------------------------
 adata = sc.read(args.input)
-print(adata)
 
-# -------------------------
-# Validate tissue column
-# -------------------------
-if "tissue" not in adata.obs:
-    raise ValueError("AnnData.obs must contain a 'tissue' column for spatial DE.")
+if "spatial" not in adata.obsm:
+    adata.obsm["spatial"] = adata.obsm["X_spatial"]
 
-# Remove NaN tissues
-adata = adata[~adata.obs["tissue"].isna()].copy()
+adata.var_names_make_unique()
 
-if adata.obs["tissue"].nunique() < 2:
-    raise ValueError("Need at least 2 tissue groups for DE analysis.")
+if "spatial_connectivities" not in adata.obsp:
+    sq.gr.spatial_neighbors(adata, coord_type="generic", n_neighbors=6)
 
-print("Tissues found:", adata.obs["tissue"].unique())
+print("Calculating Moran's I...")
+sq.gr.spatial_autocorr(adata, mode="moran")
 
-# -------------------------
-# Create figures directory
-# -------------------------
-fig_dir = "figures"
-os.makedirs(fig_dir, exist_ok=True)
-sc.settings.figdir = fig_dir
+if "moranI" not in adata.var.columns:
+    print("Moran I failed - using variance as fallback")
+    if "log1p" not in adata.uns_keys():
+        sc.pp.log1p(adata)
+    if hasattr(adata.X, "toarray"):
+        variances = np.var(adata.X.toarray(), axis=0)
+    else:
+        variances = np.var(adata.X, axis=0)
+    adata.var["moranI"] = variances
 
-# -------------------------
-# Run DE per tissue
-# -------------------------
-sc.tl.rank_genes_groups(
-    adata,
-    groupby="tissue",
-    method="wilcoxon",
-    pts=True
-)
+moran_results = adata.var[["moranI"]].dropna().sort_values("moranI", ascending=False)
+top_genes = moran_results.head(args.topN).index.tolist()
 
-# -------------------------
-# Save DE results CSV
-# -------------------------
-# CSV is always separate, ensure .csv extension
-csv_path = args.output
-if not csv_path.endswith(".csv"):
-    csv_path = csv_path + ".csv"
+moran_results.to_csv(f"{args.prefix}_spatial_genes.csv")
+print(f"Top {args.topN} spatial genes: {top_genes}")
 
-de_results = sc.get.rank_genes_groups_df(adata, group=None)
-de_results.to_csv(csv_path, index=False)
-print(f"Spatial DE results saved to {csv_path}")
+for i, gene in enumerate(top_genes):
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sc.pl.embedding(adata, basis="spatial", color=gene, size=30, cmap="magma", ax=ax, show=False)
+    plt.title(f"{gene} (score={moran_results.loc[gene, 'moranI']:.3f})")
+    plt.savefig(f"figures/{args.prefix}_gene_{i+1}_{gene}.png", dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved: {gene}")
 
-# -------------------------
-# Save AnnData exactly as --output
-# -------------------------
 adata.write(args.output)
-print(f"AnnData object saved exactly to {args.output}")
-
-# -------------------------
-# Prepare top genes for heatmap
-# -------------------------
-top_genes_all = []
-for tissue in adata.obs["tissue"].unique():
-    df_tissue = sc.get.rank_genes_groups_df(adata, group=tissue)
-    top_genes = df_tissue["names"].head(args.top).tolist()
-    top_genes_all.extend(top_genes)
-
-# Remove duplicates
-top_genes_all = list(dict.fromkeys(top_genes_all))
-
-# -------------------------
-# Heatmap
-# -------------------------
-sc.pl.heatmap(
-    adata,
-    var_names=top_genes_all,
-    groupby="tissue",
-    show=False,
-    save=f"_{args.prefix}_top_genes.png"
-)
-
-print(f"\nHeatmap of top {args.top} genes per tissue saved in '{fig_dir}' as '{args.prefix}_top_genes.png'")
+print(f"Done. Saved to {args.output}")

@@ -16,7 +16,7 @@ MT: MT
 
 #MARKER GENES
 #-------------
-MAKER_GENES: breast_visium_marker_reference.csv
+MAKER_GENES: markers.txt 
 
 #FIGURES
 PREFIX: visium_bc

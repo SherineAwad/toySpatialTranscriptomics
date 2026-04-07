@@ -41,6 +41,17 @@ This visualization shows the spatial organization of spots/cells and their neigh
 ### Neighborhood Enrichment
 This heatmap shows pairwise enrichment or depletion of cell type neighborhoods. Positive values indicate that two cell types co-occur spatially more often than expected by chance, while negative values indicate avoidance.
 
+![](figures/visium_bc_nhood_enrichment.png?v=2) 
+
+
+## Gene expression spatial plots for few genes
+
+<img src="figures/visium_bc_spatial_MT-CYB.png" width="33%"><img src="figures/visium_bc_spatial_MT-ATP6.png" width="33%"><img src="figures/visium_bc_spatial_MT-CO2.png" width="33%">
+<img src="figures/visium_bc_spatial_MT-CO1.png" width="33%"><img src="figures/visium_bc_spatial_LDHA.png" width="33%"><img src="figures/visium_bc_spatial_SLC2A1.png" width="33%">
+<img src="figures/visium_bc_spatial_VEGFA.png" width="33%"><img src="figures/visium_bc_spatial_HIF1A.png" width="33%"><img src="figures/visium_bc_spatial_FCGR3A.png" width="33%">
+<img src="figures/visium_bc_spatial_CSF1R.png" width="33%"><img src="figures/visium_bc_spatial_CD68.png" width="33%"><img src="figures/visium_bc_spatial_LYZ.png" width="33%">
+<img src="figures/visium_bc_spatial_CD79A.png" width="33%"><img src="figures/visium_bc_spatial_MS4A1.png" width="33%"><img src="figures/visium_bc_spatial_TRAC.png" width="33%">
+
 ## Spatially Variable Genes (SVG)
 
 Spatially variable genes are genes whose expression levels are not randomly distributed across the tissue but instead show structured spatial patterns. These genes can highlight functional tissue regions, spatial domains, or microenvironment niches.

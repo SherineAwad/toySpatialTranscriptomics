@@ -69,9 +69,9 @@ rule plot:
         "figures/{prefix}_nhood_enrichment.png",
     params:
         prefix =config['PREFIX']
+        markers = config['MARKER_GENES']
     shell:
-        "python src/plots.py --input {input} --prefix {params.prefix}"
-
+        "python src/plots.py --input {input} --prefix {params.prefix} --markers {params.markers}" 
 
 
 # Spatial differential Expression per tissue 

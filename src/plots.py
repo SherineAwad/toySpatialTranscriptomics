@@ -6,6 +6,7 @@ import squidpy as sq
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 # -------------------------
 # Args
@@ -13,6 +14,7 @@ import numpy as np
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", required=True)
 parser.add_argument("--prefix", default="fig")
+parser.add_argument("--markers", required=False, default=None)
 args = parser.parse_args()
 
 prefix = args.prefix
@@ -57,11 +59,13 @@ if "spatial_connectivities" in adata.obsp:
     coords = adata.obsm["spatial"]
     edges = find(adata.obsp["spatial_connectivities"])
     step = max(1, len(edges[0]) // 2000)
+
     for idx in range(0, len(edges[0]), step):
         i, j = edges[0][idx], edges[1][idx]
         if i < j:
-            ax.plot([coords[i,0], coords[j,0]], [coords[i,1], coords[j,1]], 
-                   'gray', alpha=0.2, linewidth=0.3)
+            ax.plot([coords[i, 0], coords[j, 0]],
+                    [coords[i, 1], coords[j, 1]],
+                    'gray', alpha=0.2, linewidth=0.3)
 
 plt.title("Spatial Graph")
 plt.tight_layout()
@@ -82,3 +86,36 @@ plt.savefig(f"figures/{prefix}_nhood_enrichment.png", dpi=150, bbox_inches="tigh
 plt.close()
 print("✓ Figure 3 saved")
 
+# =========================================================
+# 4. MARKER GENE SPATIAL PLOTS (FIXED - NO WARNING)
+# =========================================================
+if args.markers is not None:
+    os.makedirs("figures", exist_ok=True)
+
+    if os.path.isfile(args.markers):
+        with open(args.markers, "r") as f:
+            markers = [line.strip() for line in f if line.strip()]
+    else:
+        markers = [g.strip() for g in args.markers.split(",")]
+
+    for gene in markers:
+        if gene not in adata.var_names:
+            print(f"⚠ Gene not found: {gene}")
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 8))
+
+        # ✅ FIX: replaced deprecated sc.pl.spatial
+        sq.pl.spatial_scatter(
+            adata,
+            color=gene,
+            size=1.5,
+            ax=ax,
+        )
+
+        plt.title(gene)
+        plt.tight_layout()
+        plt.savefig(f"figures/{prefix}_spatial_{gene}.png", dpi=150, bbox_inches="tight")
+        plt.close()
+
+    print("✓ Marker gene spatial plots saved")

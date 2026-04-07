@@ -21,6 +21,10 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 
 **UMAP of annotated cell types** - Dimensionality reduction showing how cell types cluster in expression space. Well-separated groups indicate successful marker-based annotation with distinct transcriptional identities.
 
+![](figures/visium_bc_umap_celltype.png?v=2) 
+
+**Spatial cell type map** – Spatial scatter plot of spots colored by annotated cell types, showing how different cell populations are distributed across the tissue architecture. This reveals spatial organization and potential regional enrichment of specific cell types.
+
 ![](figures/visium_bc_spatial_celltype.png?v=3)
 
 ### Cell Type Composition

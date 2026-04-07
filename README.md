@@ -77,7 +77,7 @@ In this analysis, genes are ranked by their Moran’s I score (column **"I"** fr
 ![](figures/visium_bc_gene_5_CPB1.png?v=2)
 
 
-[Spatially Variable Genes (Moran’s I)](https://docs.google.com/spreadsheets/d/18yUKNfJoli7Hmwz5dQvJJVYpO5k_upeTbhsZso9qO24/edit?usp=sharing) 
+[View Spatially Variable Genes (Moran’s I)](https://docs.google.com/spreadsheets/d/18yUKNfJoli7Hmwz5dQvJJVYpO5k_upeTbhsZso9qO24/edit?usp=sharing) 
 
 ## References
 

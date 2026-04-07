@@ -60,23 +60,24 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 
 ## Spatially Variable Genes (SVG)
 
-Spatially variable genes are genes whose expression levels are not randomly distributed across the tissue but instead show organized spatial patterns. These genes often mark functional regions, tissue compartments, or disease niches.
+Spatially variable genes are genes whose expression levels are not randomly distributed across the tissue but instead show structured spatial patterns. These genes can highlight functional tissue regions, spatial domains, or microenvironment niches.
 
-**Moran's I** measures spatial autocorrelation - whether nearby spots have similar expression values. Values range from -1 to +1, where positive values indicate clustered expression patterns and negative values indicate dispersed patterns.
+**Moran’s I** measures spatial autocorrelation — whether nearby spatial spots have similar expression values for a given gene. It is computed per gene using spatial neighborhood graphs (e.g., from Squidpy). Values typically range from -1 to +1, where positive values indicate spatial clustering and values near zero indicate weak or no spatial structure.
 
-- **High Moran's I (>0.5)** : Gene is confined to specific spatial regions (e.g., tumor core marker, stromal signature)
-- **Moderate Moran's I (0.2-0.5)** : Gene shows gradual spatial gradient across the tissue
-- **Low Moran's I (<0.2)** : Gene is randomly distributed or ubiquitously expressed
+In this analysis, genes are ranked by their Moran’s I score (column **"I"** from Squidpy output), and the top genes represent the strongest spatially structured expression patterns in the tissue.
 
-Top spatially variable genes represent the most organized transcriptional patterns in your tissue section, revealing spatial functional domains that may not be captured by clustering alone, top 6 genes are listed below: 
+- **High Moran’s I (> 0.5)**: Gene shows strong spatial clustering in specific regions (e.g., tissue compartments, tumor core, or stromal zones)
+- **Moderate Moran’s I (0.2–0.5)**: Gene shows moderate spatial structure or gradients across tissue
+- **Low Moran’s I (< 0.2)**: Gene shows weak or no spatial organization and is more uniformly or randomly distributed
 
-![](figures/visium_BC_gene_3_SERF2.png?v=2)
-![](figures/visium_BC_gene_5_RPLP2.png?v=2)
-![](figures/visium_BC_gene_6_RPS28.png?v=2)
-![](figures/visium_BC_gene_1_RPL41.png?v=2)
-![](figures/visium_BC_gene_4_RPL13A.png?v=2)
-![](figures/visium_BC_gene_2_RPS27.png?v=2)
+![](figures/visium_bc_gene_1_MALAT1.png?v=2)
+![](figures/visium_bc_gene_2_IGHG3.png?v=2)
+![](figures/visium_bc_gene_3_IGLC2.png?v=2)
+![](figures/visium_bc_gene_4_IGKC.png?v=2)
+![](figures/visium_bc_gene_5_CPB1.png?v=2)
 
+
+[Spatially Variable Genes (Moran’s I)](https://docs.google.com/spreadsheets/d/18yUKNfJoli7Hmwz5dQvJJVYpO5k_upeTbhsZso9qO24/edit?usp=sharing) 
 
 ## References
 

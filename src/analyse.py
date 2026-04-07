@@ -23,24 +23,36 @@ if adata.var_names.dtype in ['int64', 'int32']:
     else:
         adata.var_names = [f"gene_{i}" for i in range(adata.n_vars)]
 
-# --- Standard preprocessing ---
+adata.var_names_make_unique()
+
+# -------------------------------
+# QC (RAW COUNTS - CORRECT PLACE)
+# -------------------------------
+adata.var["mt"] = adata.var_names.str.upper().str.startswith("MT-")
+sc.pp.calculate_qc_metrics(adata, qc_vars=["mt"], inplace=True)
+
+# -------------------------------
+# PREPROCESSING
+# -------------------------------
 sc.pp.normalize_total(adata)
 sc.pp.log1p(adata)
 
-# --- Highly Variable Genes ---
 sc.pp.highly_variable_genes(adata, flavor="seurat", n_top_genes=2000)
-
-# --- Scale the data ---
 sc.pp.scale(adata)
 
-# --- PCA / neighbors / UMAP / Leiden ---
+# -------------------------------
+# DIMENSIONALITY REDUCTION + CLUSTERING
+# -------------------------------
 sc.pp.pca(adata)
 sc.pp.neighbors(adata)
 sc.tl.umap(adata)
 sc.tl.leiden(adata)
+
 print(adata)
 
-# --- Spatial scatter plot ---
+# -------------------------------
+# SPATIAL PLOTS
+# -------------------------------
 fig, ax = plt.subplots(figsize=(8, 8))
 sq.pl.spatial_scatter(
     adata,
@@ -52,10 +64,8 @@ sq.pl.spatial_scatter(
 plt.savefig(f"figures/{args.prefix}_leiden.png")
 plt.close()
 
-# --- Compute spatial neighbors ---
 sq.gr.spatial_neighbors(adata, radius=3.0)
 
-# --- Spatial scatter with edges ---
 fig, ax = plt.subplots(figsize=(8, 8))
 sq.pl.spatial_scatter(
     adata,
@@ -67,6 +77,22 @@ sq.pl.spatial_scatter(
 plt.savefig(f"figures/{args.prefix}_neighbors.png")
 plt.close()
 
-# Save processed AnnData
+# -------------------------------
+# ONE QC FIGURE (PER CLUSTER, AFTER LEIDEN)
+# -------------------------------
+fig = sc.pl.violin(
+    adata,
+    keys=["total_counts", "n_genes_by_counts", "pct_counts_mt"],
+    groupby="leiden",
+    multi_panel=True,
+    stripplot=False,
+    show=False
+)
+plt.savefig(f"figures/{args.prefix}_qc_per_cluster.png")
+plt.close()
+
+# -------------------------------
+# SAVE
+# -------------------------------
 adata.write(args.output)
 print(f"Processed AnnData saved to {args.output}")

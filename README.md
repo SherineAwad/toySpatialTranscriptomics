@@ -18,6 +18,9 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 **Spatial neighbor graph** – Spatial scatter plot with connectivity edges showing physically adjacent spots within a fixed radius. This graph defines local spatial relationships used for downstream spatial statistics and neighborhood analysis.
 ![](figures/visium_bc_neighbors.png?v=3)
 
+#### Look at QC per cluster leiden 
+
+![](figures/visium_bc_qc_per_cluster.png?v=2)
 
 **UMAP of annotated cell types** - Dimensionality reduction showing how cell types cluster in expression space. Well-separated groups indicate successful marker-based annotation with distinct transcriptional identities.
 

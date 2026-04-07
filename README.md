@@ -3,11 +3,12 @@
 ## Data
 Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each spot contains spatial coordinates (x,y) and gene expression counts. The tissue section includes tumor regions, stroma, immune infiltrates, and vascular elements.
 
+
 #### Before Filtering  
-![]( figures/violinvisium_BCpre_filter.png?v=3)
+![]( figures/violinvisium_bcpre_filter.png?v=3)
 
 #### After Filtering (We almost did not filter as the data is already filtered) 
-![](figures/violinvisium_BCpost_filter.png?v=3)
+![](figures/violinvisium_bcpost_filter.png?v=3)
 
 ## Results
 

@@ -12,26 +12,27 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 
 ## Results
 
+**Leiden clustering (spatial projection)** – Spots are colored by Leiden clusters derived from transcriptional similarity (PCA → neighbors → UMAP → Leiden). The plot shows how these expression-based clusters are distributed across tissue space, highlighting spatial organization of transcriptionally similar regions.
 ![](figures/visium_bc_leiden.png?v=3)
 
-**Leiden clustering** - Unsupervised clustering identifies distinct transcriptional regions across the tissue. Each color represents a cluster of spots with similar expression patterns, revealing heterogeneous tissue architecture and spatial compartments.
-
+**Spatial neighbor graph** – Spatial scatter plot with connectivity edges showing physically adjacent spots within a fixed radius. This graph defines local spatial relationships used for downstream spatial statistics and neighborhood analysis.
 ![](figures/figures/visium_bc_neighbors.png?v=3)
 
-**Spatial neighbor graph** - Connectivity network showing physically adjacent spots. This defines spatial relationships used for neighborhood analysis and autocorrelation statistics.
-
-![](figures/figures/visium_bc_umap_celltype.png?v=3)
 
 **UMAP of annotated cell types** - Dimensionality reduction showing how cell types cluster in expression space. Well-separated groups indicate successful marker-based annotation with distinct transcriptional identities.
 
 ![](figures/visium_bc_spatial_celltype.png?v=3)
 
-
-![](figures/visium_bc_nhood_enrichment.png?v=3)
-![](figures/visium_bc_spatial_graph.png?v=3)
+### Cell Type Composition
+This bar plot shows the overall abundance of each annotated cell type in the dataset. It provides a quick overview of cellular heterogeneity and highlights dominant or rare populations.
 ![](figures/visium_bc_celltype_composition.png?v=3)
 
+### Spatial Graph
+This visualization shows the spatial organization of spots/cells and their neighborhood connections. Nodes are colored by cell type, and edges represent spatial adjacency inferred from nearest-neighbor relationships, illustrating local tissue structure.
+![](figures/visium_bc_spatial_graph.png?v=3)
 
+### Neighborhood Enrichment
+This heatmap shows pairwise enrichment or depletion of cell type neighborhoods. Positive values indicate that two cell types co-occur spatially more often than expected by chance, while negative values indicate avoidance.
 
 ## Spatially Variable Genes (SVG)
 

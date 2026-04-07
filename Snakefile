@@ -8,16 +8,15 @@ rule all:
         config["OBJ"],
         config["FILTERED_OBJ"],
         config["ANALYSED_OBJ"],
-        expand("figures/{prefix}_top_moranI.png", prefix=config["PREFIX"]),
-	config["ANNOTATED_OBJ"],
-        config["Tissue_DE_OBJ"]
+        config["ANNOTATED_OBJ"],
+        expand("figures/{prefix}_nhood_enrichment.png", prefix=config["PREFIX"]),
+        config["SPATIAL_DE_OBJ"]
 
-# Generate dummy data
-rule generate_dummy:
+rule get_data:
     output:
         config["OBJ"]
     shell:
-        "python src/dummy.py --output {output}"
+        "python src/get_visium.py --output {output}"
 
 # Filter AnnData
 rule filter:
@@ -25,10 +24,11 @@ rule filter:
         config["OBJ"]
     output:
         config["FILTERED_OBJ"]
+    params: config['PREFIX']
     shell:
         """
         python src/filter.py --input {input} --output {output} \
-        --prefix {config[PREFIX]} --min_genes {config[MIN_GENES]} \
+        --prefix {params} --min_genes {config[MIN_GENES]} \
         --min_cells {config[MIN_CELLS]} --mt {config[MT]}
         """
 
@@ -38,20 +38,10 @@ rule analyse:
         config["FILTERED_OBJ"]
     output:
         config["ANALYSED_OBJ"]
+    params: 
+           config['PREFIX']
     shell:
-        "python src/analyse.py --input {input} --output {output} --prefix {config[PREFIX]}"
-
-
-# Generate plots
-rule plot:
-    input:
-        config["ANALYSED_OBJ"]
-    output:
-        "figures/{prefix}_top_moranI.png",
-    params:
-        markers=config["MAKER_GENES"]
-    shell:
-        "python src/plots.py --input {input} --prefix {wildcards.prefix} --markers {params.markers}"
+        "python src/analyse.py --input {input} --output {output} --prefix {params}"
 
 
 # Annotate AnnData
@@ -61,14 +51,26 @@ rule annotate:
     output:
         config["ANNOTATED_OBJ"]
     params:
-        annot_file=config["ANNOT_FILE"]
+        annot_file=config["ANNOT_FILE"],
+        prefix = config['PREFIX']
     shell:
         """
         python src/annotate.py \
         --input {input} \
         --output {output} \
-        --annotations {params.annot_file}
+        --markers {params.annot_file} --prefix {params.prefix}
         """
+
+# Generate plots
+rule plot:
+    input:
+        config["ANNOTATED_OBJ"]
+    output:
+        "figures/{prefix}_nhood_enrichment.png",
+    params:
+        prefix =config['PREFIX']
+    shell:
+        "python src/plots.py --input {input} --prefix {params.prefix}"
 
 
 
@@ -78,8 +80,10 @@ rule spatial_DE:
     input: 
        config["ANNOTATED_OBJ"]
     output: 
-       config["Tissue_DE_OBJ"] 
+       config["SPATIAL_DE_OBJ"] 
+    params: 
+      config['PREFIX']
     shell: 
       """ 
-      python src/spatialDE.py --input {input} --output {output}  
+      python src/spatialDE.py --input {input} --output {output} --prefix {params}  
       """ 

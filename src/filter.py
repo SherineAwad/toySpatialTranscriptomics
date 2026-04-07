@@ -3,6 +3,7 @@ import squidpy as sq
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.sparse as sp
 
 # Arguments
 parser = argparse.ArgumentParser(description="Filter AnnData with QC plots and optional MT genes")
@@ -17,6 +18,9 @@ args = parser.parse_args()
 # Load AnnData
 adata = sc.read(args.input)
 
+# FIX: make gene names unique (required for safe slicing)
+adata.var_names_make_unique()
+
 # Compute QC metrics
 def compute_qc(adata, mt_prefix):
     adata.obs['n_counts'] = adata.X.sum(axis=1)
@@ -24,20 +28,25 @@ def compute_qc(adata, mt_prefix):
 
     # Only calculate percent_mt if mt_prefix is not NULL
     if mt_prefix.upper() != "NULL":
-        mt_cols = [g for g in adata.var_names if g.startswith(mt_prefix)]
+        mt_cols = adata.var_names[adata.var_names.str.startswith(mt_prefix)]
+
         if len(mt_cols) > 0:
-            if sc.sparse.issparse(adata.X):
+            if sp.issparse(adata.X):
                 mt_counts = adata[:, mt_cols].X.toarray().sum(axis=1)
             else:
                 mt_counts = adata[:, mt_cols].X.sum(axis=1)
+
             adata.obs['percent_mt'] = mt_counts / adata.obs['n_counts']
         else:
             adata.obs['percent_mt'] = 0.0
             print(f"No genes found with prefix '{mt_prefix}'. percent_mt set to 0 for QC plots.")
+
         return ['n_genes', 'n_counts', 'percent_mt']
+
     else:
         print("Mitochondrial gene QC ignored.")
         return ['n_genes', 'n_counts']
+
 
 # Prefilter QC
 qc_metrics = compute_qc(adata, args.mt)

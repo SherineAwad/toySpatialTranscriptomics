@@ -47,7 +47,7 @@ for i, gene in enumerate(top_genes):
         ax=ax,
         show=False
     )
-    plt.savefig(f"figures/{args.prefix}_gene_{i+1}_{gene}.png", dpi=150, bbox_inches="tight")
+    plt.savefig(f"figures/{args.prefix}_{gene}.png", dpi=150, bbox_inches="tight")
     plt.close()
 
 adata.write(args.output)

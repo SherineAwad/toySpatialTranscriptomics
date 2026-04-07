@@ -1,8 +1,9 @@
-OBJ: toy.h5ad
-FILTERED_OBJ: filtered_toy.h5ad
-ANALYSED_OBJ: analysed_toy.h5ad
-ANNOTATED_OBJ: annotated_toy.h5ad 
-Tissue_DE_OBJ: spatial_DE_toy.h5ad
+OBJ: visium_bc.h5ad
+FILTERED_OBJ: visium_bc_filtered.h5ad 
+ANALYSED_OBJ: visium_bc_analysed.h5ad
+ANNOTATED_OBJ: visium_bc_annotated.h5ad
+SPATIAL_DE_OBJ: visium_bc_annotated.h5ad
+
 
 #FILTERING PARAMS 
 #------------------
@@ -15,11 +16,10 @@ MT: MT
 
 #MARKER GENES
 #-------------
-MAKER_GENES: markers.txt
-
+MAKER_GENES: breast_visium_marker_reference.csv
 
 #FIGURES
-PREFIX: toy_spatial
+PREFIX: visium_bc
 
 #ANNOTATIONS 
-ANNOT_FILE: annotations.txt
+ANNOT_FILE: breast_visium_marker_reference.csv 

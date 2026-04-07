@@ -39,23 +39,12 @@ plt.figure(figsize=(10, 6))
 adata.obs["cell_type"].value_counts().plot(kind="bar")
 plt.title("Cell Type Composition")
 plt.tight_layout()
-plt.savefig(f"figures/{prefix}_1_celltype_composition.png", dpi=150, bbox_inches="tight")
+plt.savefig(f"figures/{prefix}_celltype_composition.png", dpi=150, bbox_inches="tight")
 plt.close()
 print("✓ Figure 1 saved")
 
 # =========================================================
-# 2. Spatial plot
-# =========================================================
-fig, ax = plt.subplots(figsize=(10, 10))
-sc.pl.embedding(adata, basis="spatial", color="cell_type", size=30, ax=ax, show=False)
-plt.title("Spatial Cell Types")
-plt.tight_layout()
-plt.savefig(f"figures/{prefix}_2_spatial_celltype.png", dpi=150, bbox_inches="tight")
-plt.close()
-print("✓ Figure 2 saved")
-
-# =========================================================
-# 3. Spatial graph
+# 2. Spatial graph
 # =========================================================
 if "spatial_connectivities" not in adata.obsp:
     sq.gr.spatial_neighbors(adata, coord_type="generic", n_neighbors=6)
@@ -76,12 +65,12 @@ if "spatial_connectivities" in adata.obsp:
 
 plt.title("Spatial Graph")
 plt.tight_layout()
-plt.savefig(f"figures/{prefix}_3_spatial_graph.png", dpi=150, bbox_inches="tight")
+plt.savefig(f"figures/{prefix}_spatial_graph.png", dpi=150, bbox_inches="tight")
 plt.close()
-print("✓ Figure 3 saved")
+print("✓ Figure 2 saved")
 
 # =========================================================
-# 4. Neighborhood enrichment
+# 3. Neighborhood enrichment
 # =========================================================
 sq.gr.nhood_enrichment(adata, cluster_key="cell_type")
 
@@ -89,47 +78,7 @@ fig, ax = plt.subplots(figsize=(12, 10))
 sq.pl.nhood_enrichment(adata, cluster_key="cell_type", cmap="viridis", ax=ax)
 plt.title("Neighborhood Enrichment")
 plt.tight_layout()
-plt.savefig(f"figures/{prefix}_4_nhood_enrichment.png", dpi=150, bbox_inches="tight")
+plt.savefig(f"figures/{prefix}_nhood_enrichment.png", dpi=150, bbox_inches="tight")
 plt.close()
-print("✓ Figure 4 saved")
+print("✓ Figure 3 saved")
 
-# =========================================================
-# 5. MULTIPLE GENES (NO MORAN I DEPENDENCY)
-# =========================================================
-# Calculate variance to get top genes
-if adata.X is not None:
-    if hasattr(adata.X, "toarray"):
-        variances = np.var(adata.X.toarray(), axis=0)
-    else:
-        variances = np.var(adata.X, axis=0)
-    adata.var["variance"] = variances
-
-# Get top 4 genes by variance
-n_genes = min(4, adata.n_vars)
-top_genes = adata.var.nlargest(n_genes, "variance").index.tolist()
-
-print(f"Plotting top {len(top_genes)} variable genes: {top_genes}")
-
-# Plot each gene as a separate figure
-for i, gene in enumerate(top_genes, 1):
-    fig, ax = plt.subplots(figsize=(10, 10))
-    sc.pl.embedding(
-        adata,
-        basis="spatial",
-        color=gene,
-        size=30,
-        cmap="magma",
-        ax=ax,
-        show=False,
-        colorbar_loc="right"
-    )
-    plt.title(f"Gene: {gene} (Top {i} by variance)")
-    plt.tight_layout()
-    plt.savefig(f"figures/{prefix}_5_gene_{i}_{gene}.png", dpi=150, bbox_inches="tight")
-    plt.close()
-    print(f"  ✓ Saved: {gene}")
-
-print("\n" + "="*50)
-print(f"✓ ALL FIGURES SAVED to figures/")
-print(f"  - Figure 5 produced {n_genes} gene expression plots")
-print("="*50)

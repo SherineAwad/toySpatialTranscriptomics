@@ -87,7 +87,7 @@ plt.close()
 print("✓ Figure 3 saved")
 
 # =========================================================
-# 4. MARKER GENE SPATIAL PLOTS (FIXED - NO WARNING)
+# 4. MARKER GENE SPATIAL PLOTS
 # =========================================================
 if args.markers is not None:
     os.makedirs("figures", exist_ok=True)
@@ -105,7 +105,6 @@ if args.markers is not None:
 
         fig, ax = plt.subplots(figsize=(8, 8))
 
-        # ✅ FIX: replaced deprecated sc.pl.spatial
         sq.pl.spatial_scatter(
             adata,
             color=gene,

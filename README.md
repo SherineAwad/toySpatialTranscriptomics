@@ -16,7 +16,18 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 **Leiden clustering (spatial projection)** – Spots are colored by Leiden clusters derived from transcriptional similarity (PCA → neighbors → UMAP → Leiden). The plot shows how these expression-based clusters are distributed across tissue space, highlighting spatial organization of transcriptionally similar regions.
 ![](figures/visium_bc_leiden.png?v=3)
 
-**Spatial neighbor graph** – Spatial scatter plot with connectivity edges showing physically adjacent spots within a fixed radius. This graph defines local spatial relationships used for downstream spatial statistics and neighborhood analysis.
+**Spatial neighbor graph** – This plot visualizes how spatial spots are connected to one another based on a defined distance radius.
+
+**What each dot represents:** A spatial capture spot, colored by its Leiden cluster assignment.
+
+**What the connections show:** Lines between spots indicate that two spots are within the specified radius (here, 3.0 distance units) and are therefore considered spatial neighbors.
+
+**What this plot tells you:**
+
+- Whether the chosen radius appropriately captures local spatial relationships (not too sparse, not too dense)
+- Whether spots from the same Leiden cluster form contiguous connected regions or are broken into isolated pieces
+- How different clusters are spatially arranged relative to each other
+
 ![](figures/visium_bc_neighbors.png?v=4)
 
 ### Look at QC per cluster leiden 
@@ -27,7 +38,9 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 
 ![](figures/visium_bc_umap_celltype.png?v=2) 
 
-**Spatial cell type map** – Spatial scatter plot of spots colored by annotated cell types, showing how different cell populations are distributed across the tissue architecture. This reveals spatial organization and potential regional enrichment of specific cell types.
+**Spatial cell type map**  - This plot shows the spatial arrangement of cell types across the tissue section. Each dot represents a spatial capture spot, colored by its assigned cell type.
+
+The position of each dot reflects its original tissue coordinates, allowing direct visualization of where each cell population resides and how different cell types are distributed relative to one another.
 
 ![](figures/visium_bc_spatial_celltype.png?v=3)
 
@@ -35,8 +48,14 @@ Visium breast cancer spatial transcriptomics: 3,798 spots, 36,601 genes. Each sp
 This bar plot shows the overall abundance of each annotated cell type in the dataset. It provides a quick overview of cellular heterogeneity and highlights dominant or rare populations.
 ![](figures/visium_bc_celltype_composition.png?v=3)
 
-### Spatial Graph
-This visualization shows the spatial organization of spots/cells and their neighborhood connections. Nodes are colored by cell type, and edges represent spatial adjacency inferred from nearest-neighbor relationships, illustrating local tissue structure.
+## Spatial Graph with Neighbor Connections
+
+This plot shows spatial spots colored by cell type, with gray lines connecting neighboring spots.
+
+The lines define which spots are considered neighbors based on the chosen distance or number of nearest neighbors. 
+
+Use this plot to quickly verify that no spot is isolated and to see which cell types sit adjacent to each other. The lines are dense and not meant to be traced individually — this is primarily a quality control visualization.
+
 ![](figures/visium_bc_spatial_graph.png?v=3)
 
 ### Neighborhood Enrichment
